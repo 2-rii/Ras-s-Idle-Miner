@@ -7,8 +7,8 @@ namespace IdleMiner
         public long Money{get; private set;}
         public int DaysPassed{get; private set;}
         public string Equipment{get; private set;}
-        public int MiningSpeedModifier{get; private set;}
-        public int ValuablePerc{get; private set;}
+        public long MiningSpeedModifier{get; private set;}
+        public long ValuablePerc{get; private set;}
 
         public Player()
         {
@@ -19,7 +19,7 @@ namespace IdleMiner
             ValuablePerc=2;
         }
 
-        public Player(long money, int daysPassed, string equipment, int miningSpeed, int valuablePerc)
+        public Player(long money, int daysPassed, string equipment, long miningSpeed, long valuablePerc)
         {
             Money=money;
             DaysPassed=daysPassed;
@@ -38,7 +38,7 @@ namespace IdleMiner
             Money-=Decrease;
         }
 
-        public void ChangeEquip(string newName, int newSpeed, int newValPerc)
+        public void ChangeEquip(string newName, long newSpeed, long newValPerc)
         {
             Equipment=newName;
             MiningSpeedModifier=newSpeed;
@@ -50,6 +50,10 @@ namespace IdleMiner
             DaysPassed++;
         }
 
+        public bool checkMoney(long Amount)
+        {
+            return Amount<=Money;
+        }
 
 
 
@@ -84,13 +88,18 @@ namespace IdleMiner
             CurrentStorage=currentStorage;
         }
 
-        public bool checkifFull()
+        public long getTotal()
         {
             long total=0;
             foreach(var(ore, quantity) in CurrentStorage)
             {
                 total+=quantity;
             }
+            return total;
+        }
+
+        public bool checkifFull(long total)
+        {
 
             return total >= MaxCapacity; 
 
@@ -98,7 +107,7 @@ namespace IdleMiner
 
         public bool addtoStorage(long rock=0, long ironore=0, long copperore=0, long goldore=0, long diamondore=0, long viltrumore=0, long yakhadurore=0, long bigrore=0, long appalachianore=0, long minkore=0)
         {
-            if (checkifFull())
+            if (checkifFull(getTotal()))
             {
                 return false;
             }
@@ -119,6 +128,25 @@ namespace IdleMiner
             }
         }
 
+        public void inittoZero()
+        {
+            CurrentStorage["Rocks"]=0;
+            CurrentStorage["Iron Ore"]=0;
+            CurrentStorage["Copper Ore"]=0;
+            CurrentStorage["Gold Ore"]=0;
+            CurrentStorage["Diamond Ore"]=0;
+            CurrentStorage["Viltrum Ore"]=0;
+            CurrentStorage["Yakhadur Ore"]=0;
+            CurrentStorage["Big R Ore"]=0;
+            CurrentStorage["Appalachian Ore"]=0;
+            CurrentStorage["Mink Ore"]=0;
+        }
+
+        public Dictionary<string,long> getStorage()
+        {
+            //Rare case when storage needs to be looked into, like for selling
+            return CurrentStorage;
+        }
 
 
     }

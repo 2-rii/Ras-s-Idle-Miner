@@ -2,8 +2,8 @@ namespace IdleMiner
 {
     class MiningSystem
     {
-        public Player playerInst {get; private set;}
-        public Base baseInst {get; private set;}
+        private Player playerInst {get; set;}
+        private Base baseInst {get; set;}
         private Random randomizer= new Random();
 
 
