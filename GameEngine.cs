@@ -1,4 +1,7 @@
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 namespace IdleMiner
 {
     class Game
@@ -8,7 +11,7 @@ namespace IdleMiner
         private MiningSystem miningSys{get; set;}
         private SellStore sellInst{get; set;}
         private BuyStore buyInst{get; set;}
-        private string[] Equip=["Pickaxe", "Drill", "Excavator", "Drill"];
+        private string[] Equip=["Pickaxe", "Drill", "Excavator", "Quarry"];
         private bool running{get; set;}
 
 
@@ -77,11 +80,18 @@ namespace IdleMiner
                     Console.Clear();
                     Console.WriteLine("You may leave Ras's Miner, but Ras's Miner will never leave you");
                     Console.CursorVisible=true;
-                    //Save Logic Here
+                    Save();
+                    Console.WriteLine("Game saved successfully to userData.json!");
                     break;
                 
                 case ConsoleKey.S:
-                    //Load Logic here
+                    if (!File.Exists("userData.json"))
+                    {
+                        break;
+                    }
+
+                    Load();
+                    Console.WriteLine("Game successfully loaded from userData.json!");
                     break;
                 
                 case ConsoleKey.K:
@@ -93,6 +103,58 @@ namespace IdleMiner
                 case ConsoleKey.Y:
                     sellInst.SellAll();
                     break;
+            }
+        }
+
+        public void Save()
+        {
+            string file= "userData.json";
+
+            //It will override any data alr there
+
+            var saveData= new
+            {
+                pMoney=playerInst.Money,
+                pDP=playerInst.DaysPassed,
+                pEquip=playerInst.Equipment,
+                pMSM=playerInst.MiningSpeedModifier,
+                pVP=playerInst.ValuablePerc,
+                pBC=baseInst.MaxCapacity,
+                pCI=baseInst.CurrentStorage
+
+            };
+
+            using (FileStream fs = File.Create(file))
+            {
+                JsonSerializer.Serialize(fs, saveData);
+            }
+
+
+        }
+
+        public void Load()
+        {
+            string dataJson=File.ReadAllText("userData.json");
+            using (JsonDocument doc= JsonDocument.Parse(dataJson))
+            {
+                JsonElement root= doc.RootElement;
+                long money = root.GetProperty("pMoney").GetInt64();
+                int daysPassed = root.GetProperty("pDP").GetInt32();
+                string equipment = root.GetProperty("pEquip").GetString() ?? "Pickaxe";
+                long speed = root.GetProperty("pMSM").GetInt64();
+                long valuablePerc = root.GetProperty("pVP").GetInt64();
+
+                long maxCap = root.GetProperty("pBC").GetInt64();
+                
+                var storageJson = root.GetProperty("pCI").GetRawText();
+                var storage = JsonSerializer.Deserialize<Dictionary<string, long>>(storageJson)!;
+
+                playerInst=new Player(money, daysPassed, equipment, speed,valuablePerc );
+                baseInst= new Base(maxCap, storage);
+
+                miningSys= new MiningSystem(playerInst, baseInst);
+                sellInst= new SellStore(playerInst, baseInst);
+                buyInst= new BuyStore(playerInst, baseInst);
             }
         }
     }

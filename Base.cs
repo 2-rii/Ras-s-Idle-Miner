@@ -57,6 +57,7 @@ namespace IdleMiner
 
 
 
+
     }
 
     class Base
@@ -148,6 +149,26 @@ namespace IdleMiner
             return CurrentStorage;
         }
 
+        public Dictionary<string,long> getNewStorage() 
+        {
+            //rare case if dict gets corrupted
+            Dictionary<string,long> CurrentStorage = new()
+            {
+                ["Rocks"]=0,
+                ["Iron Ore"]=0,
+                ["Copper Ore"]=0,
+                ["Gold Ore"]=0,
+                ["Diamond Ore"]=0,
+                ["Viltrum Ore"]=0,
+                ["Yakhadur Ore"]=0,
+                ["Big R Ore"]=0,
+                ["Appalachian Ore"]=0,
+                ["Mink Ore"]=0
 
+            };
+            return CurrentStorage;
+
+
+        }
     }
 }
